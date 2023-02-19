@@ -1,12 +1,4 @@
-import {
-  ActionArgs,
-  ActionFunction,
-  LinksFunction,
-  LoaderArgs,
-  MetaFunction,
-  createCookie,
-  redirect,
-} from "@remix-run/node";
+import type { LinksFunction, LoaderArgs, MetaFunction } from '@remix-run/node';
 import {
   Form,
   Links,
@@ -16,39 +8,22 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-} from "@remix-run/react";
+} from '@remix-run/react';
+import { themePreferencesCookie } from './routes/change-theme';
 
-import styles from "./tailwind.css";
+import styles from './tailwind.css';
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "New Remix App",
-  viewport: "width=device-width,initial-scale=1",
+  charset: 'utf-8',
+  title: 'New Remix App',
+  viewport: 'width=device-width,initial-scale=1',
 });
-
-export const themePreferencesCookie = createCookie("theme-preferences", {
-  maxAge: 604_800, // one week
-});
-
-export async function action({ request }: ActionArgs) {
-  const currentColorScheme = await themePreferencesCookie.parse(
-    request.headers.get("Cookie")
-  );
-
-  const newColorScheme = currentColorScheme === "dark" ? null : "dark";
-
-  return redirect(request.url, {
-    headers: {
-      "Set-Cookie": await themePreferencesCookie.serialize(newColorScheme),
-    },
-  });
-}
 
 export async function loader({ request }: LoaderArgs) {
   const themePreferences = await themePreferencesCookie.parse(
-    request.headers.get("Cookie")
+    request.headers.get('Cookie')
   );
 
   return {
@@ -57,7 +32,7 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 export default function App() {
-  const { themePreferences } = useLoaderData<{ themePreferences?: "dark" }>();
+  const { themePreferences } = useLoaderData<{ themePreferences?: 'dark' }>();
 
   return (
     <html lang="en" className={themePreferences}>
@@ -70,9 +45,9 @@ export default function App() {
           <div>
             <strong>Where in the world?</strong>
           </div>
-          <Form method="post">
+          <Form method="post" action="/change-theme">
             <button type="submit">
-              {themePreferences ? "Dark Mode" : "Light Mode"}
+              {themePreferences ? 'Dark Mode' : 'Light Mode'}
             </button>
           </Form>
         </nav>
