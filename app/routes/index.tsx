@@ -1,17 +1,13 @@
-import { LoaderArgs } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import {
-  Country,
-  getCountries,
-} from "~/repositories/countries-repository.server";
-
-const cache = {};
+import type { LoaderArgs } from '@remix-run/node';
+import { Link, useLoaderData, useSearchParams } from '@remix-run/react';
+import type { Country } from '~/repositories/countries-repository.server';
+import { getCountries } from '~/repositories/countries-repository.server';
 
 export async function loader({ request }: LoaderArgs) {
   const searchParams = new URL(request.url).searchParams;
 
-  const region = searchParams.get("region");
-  const search = searchParams.get("search");
+  const region = searchParams.get('region');
+  const search = searchParams.get('search');
 
   const countriesRaw = await getCountries({ region });
 
@@ -34,12 +30,14 @@ export default function Index() {
   return (
     <>
       <input
-        value={searchParams.get("search") || ""}
+        value={searchParams.get('search') || ''}
         onChange={(e) => setSearchParams({ search: e.target.value })}
       />
-      {countries.map((country: Country) => (
-        <div>{JSON.stringify(country)}</div>
-      ))}
+      <ul className="flex flex-wrap flex-row gap-3">
+        {countries.map((country: Country) => (
+          <li key={country.name.official}>{country.name.common}</li>
+        ))}
+      </ul>
     </>
   );
 }

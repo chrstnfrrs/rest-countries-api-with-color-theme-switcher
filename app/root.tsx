@@ -1,14 +1,6 @@
+import type { LinksFunction, LoaderArgs, MetaFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import {
-  ActionArgs,
-  ActionFunction,
-  LinksFunction,
-  LoaderArgs,
-  MetaFunction,
-  createCookie,
-  redirect,
-} from "@remix-run/node";
-import {
-  Form,
   Links,
   LiveReload,
   Meta,
@@ -16,48 +8,33 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-} from "@remix-run/react";
+  Form,
+  Link,
+  useLocation,
+} from '@remix-run/react';
+import { themePreferencesCookie } from '~/cookies.server';
 
-import styles from "./tailwind.css";
+import styles from './tailwind.css';
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "New Remix App",
-  viewport: "width=device-width,initial-scale=1",
+  charset: 'utf-8',
+  title: 'New Remix App',
+  viewport: 'width=device-width,initial-scale=1',
 });
-
-export const themePreferencesCookie = createCookie("theme-preferences", {
-  maxAge: 604_800, // one week
-});
-
-export async function action({ request }: ActionArgs) {
-  const currentColorScheme = await themePreferencesCookie.parse(
-    request.headers.get("Cookie")
-  );
-
-  const newColorScheme = currentColorScheme === "dark" ? null : "dark";
-
-  return redirect(request.url, {
-    headers: {
-      "Set-Cookie": await themePreferencesCookie.serialize(newColorScheme),
-    },
-  });
-}
 
 export async function loader({ request }: LoaderArgs) {
-  const themePreferences = await themePreferencesCookie.parse(
-    request.headers.get("Cookie")
-  );
+  const themePreferences = (await themePreferencesCookie.parse(
+    request.headers.get('Cookie')
+  )) as 'light' | 'dark';
 
-  return {
-    themePreferences,
-  };
+  return json({ themePreferences });
 }
 
 export default function App() {
-  const { themePreferences } = useLoaderData<{ themePreferences?: "dark" }>();
+  const { themePreferences = 'light' } = useLoaderData<typeof loader>();
+  const location = useLocation();
 
   return (
     <html lang="en" className={themePreferences}>
@@ -66,14 +43,43 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <nav className="flex justify-between bg-white dark:bg-slate-800">
-          <div>
-            <strong>Where in the world?</strong>
+        <nav className="flex justify-between bg-white dark:bg-slate-800 dark:text-white">
+          <div className="flex flex-row divide-x border-b border-b-gray-200 grow">
+            <div className="p-3">
+              <strong>Where in the world?</strong>
+            </div>
+            <Link
+              className="p-3 underline hover:text-blue-800 dark:hover:text-blue-300"
+              to="/"
+            >
+              Home
+            </Link>
+            <Link
+              className="p-3 underline hover:text-blue-800 dark:hover:text-blue-300"
+              to="/some/child/route"
+            >
+              Some Child Route
+            </Link>
           </div>
-          <Form method="post">
-            <button type="submit">
-              {themePreferences ? "Dark Mode" : "Light Mode"}
+          <Form method="post" action="/change-theme">
+            <button
+              type="submit"
+              name="action"
+              value="change-theme"
+              className="p-3 border-b border-b-gray-200"
+            >
+              {themePreferences === 'light' ? 'Dark Mode' : 'Light Mode'}
             </button>
+            <input
+              type="hidden"
+              name="theme"
+              value={themePreferences === 'light' ? 'dark' : 'light'}
+            />
+            <input
+              type="hidden"
+              name="returnTo"
+              value={location.pathname + location.search + location.hash}
+            />
           </Form>
         </nav>
         <Outlet />

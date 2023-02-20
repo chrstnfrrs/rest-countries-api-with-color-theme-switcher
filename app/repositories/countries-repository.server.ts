@@ -1,4 +1,4 @@
-import { ofetch } from "ofetch";
+import { ofetch } from 'ofetch';
 
 export interface Country {
   flags: Flags;
@@ -32,29 +32,35 @@ export interface Isl {
 
 // Select fields to receive from API
 // https://restcountries.com/#filter-response
-const filters = "fields=name,population,region,capital,flags";
+const filters = 'fields=name,population,region,capital,flags';
 
-const cache: Record<string, Country[]> = {};
+declare global {
+  var countryCache: Record<string, Country[]>;
+}
+
+if (!global.countryCache) {
+  global.countryCache = {};
+}
 
 export async function getCountries({ region }: { region: string | null }) {
-  const key = region || "all";
+  const key = region || 'all';
 
-  console.log("object.keys", Object.keys(cache));
+  console.log('object.keys', Object.keys(countryCache));
 
-  if (!cache[key]) {
-    if (key == "all") {
-      console.log("fetching");
+  if (!countryCache[key]) {
+    if (key == 'all') {
+      console.log('fetching');
 
-      cache[key] = await ofetch(
+      countryCache[key] = await ofetch(
         `https://restcountries.com/v3.1/all?${filters}`
       );
     } else {
-      console.log("fetching");
-      cache[key] = await ofetch(
+      console.log('fetching');
+      countryCache[key] = await ofetch(
         `https://restcountries.com/v3.1/region/${region}?${filters}`
       );
     }
   }
 
-  return cache[key];
+  return countryCache[key];
 }
