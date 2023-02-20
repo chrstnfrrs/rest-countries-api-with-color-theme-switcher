@@ -1,26 +1,19 @@
 import type { ActionArgs } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
-
-import { createCookie } from '@remix-run/node';
-
-export const themePreferencesCookie = createCookie('theme-preferences', {
-  maxAge: 604_800, // one week
-});
+import { themePreferencesCookie } from '~/cookies.server';
 
 export function loader() {
   return redirect('/');
 }
 
 export async function action({ request }: ActionArgs) {
-  const currentColorScheme = await themePreferencesCookie.parse(
-    request.headers.get('Cookie')
-  );
+  const formData = await request.formData();
+  const theme = formData.get('theme') ?? 'light';
+  const returnTo = formData.get('returnTo')?.toString() ?? '/';
 
-  const newColorScheme = currentColorScheme === 'dark' ? null : 'dark';
-
-  return redirect(request.url, {
+  return redirect(returnTo, {
     headers: {
-      'Set-Cookie': await themePreferencesCookie.serialize(newColorScheme),
+      'Set-Cookie': await themePreferencesCookie.serialize(theme),
     },
   });
 }

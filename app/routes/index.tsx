@@ -1,5 +1,5 @@
 import type { LoaderArgs } from '@remix-run/node';
-import { useLoaderData, useSearchParams } from '@remix-run/react';
+import { Link, useLoaderData, useSearchParams } from '@remix-run/react';
 import type { Country } from '~/repositories/countries-repository.server';
 import { getCountries } from '~/repositories/countries-repository.server';
 
