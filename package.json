@@ -2,9 +2,9 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "remix build",
+    "build": "yarn generate:css && remix build",
     "dev": "run-p \"dev:*\"",
-    "dev:css": "npm run generate:css -- --watch",
+    "dev:css": "yarn generate:css -- --watch",
     "dev:remix": "remix dev",
     "start": "cross-env NODE_ENV=production netlify dev",
     "typecheck": "tsc",
