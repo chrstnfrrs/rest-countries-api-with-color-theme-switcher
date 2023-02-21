@@ -6,7 +6,7 @@ import {
   getRegions,
 } from "~/repositories/countries-repository.server";
 import { Listbox, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 export async function loader({ request }: LoaderArgs) {
   const searchParams = new URL(request.url).searchParams;
@@ -30,6 +30,20 @@ export async function loader({ request }: LoaderArgs) {
   };
 }
 
+function useDebouncedValue(value: string | null) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [value]);
+
+  return debouncedValue;
+}
+
 export default function Index() {
   const { countries, regions } = useLoaderData<{
     countries: Country[];
@@ -37,32 +51,26 @@ export default function Index() {
   }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const region = searchParams.get("region");
-  const search = searchParams.get("search");
+  const [region, setRegion] = useState(searchParams.get("region"));
 
-  const setRegion = (e: string) => {
-    if (search) {
-      setSearchParams({ search, region: e });
-    } else {
-      setSearchParams({ region: e });
-    }
-  };
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const debouncedSearch = useDebouncedValue(search);
 
-  const setSearch = (newSearch: string) => {
+  useEffect(() => {
     if (region) {
-      if (newSearch) {
-        setSearchParams({ search: newSearch, region });
+      if (debouncedSearch) {
+        setSearchParams({ search: debouncedSearch, region });
       } else {
         setSearchParams({ region });
       }
     } else {
-      if (newSearch) {
-        setSearchParams({ search: newSearch });
+      if (debouncedSearch) {
+        setSearchParams({ search: debouncedSearch });
       } else {
         setSearchParams({});
       }
     }
-  };
+  }, [region, debouncedSearch]);
 
   return (
     <div className="px-4 md:px-[80px] pb-6">
@@ -83,7 +91,7 @@ export default function Index() {
           <input
             className="py-4 pl-4 outline-none z-10 w-full bg-white text-lightInput dark:bg-darkElement dark:text-white text-xs md:text-sm"
             placeholder="Search for a country..."
-            value={searchParams.get("search") || ""}
+            value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -134,11 +142,11 @@ export default function Index() {
       <ul className="grid grid-cols-[repeat(auto-fit,_264px)] justify-center md:justify-start gap-16 w-full mx-auto">
         {countries.map((country: Country) => (
           <li
-            className="rounded shadow-card bg-white text-black dark:bg-darkElement dark:text-white overflow-hidden h-min"
+            className="rounded shadow-card bg-white text-black dark:bg-darkElement dark:text-white overflow-hidden h-min min-h-full"
             key={country.name.official}
           >
             <Link to={`/${country.name.common}`}>
-              <div className="w-[264px] max-h-[160px] h-full overflow-hidden">
+              <div className="w-[264px] h-[160px] overflow-hidden">
                 <img
                   className="w-full h-full object-cover"
                   src={country.flags.svg}
@@ -164,12 +172,14 @@ export default function Index() {
                       {country.region}
                     </p>
                   </li>
-                  <li className="text-sm">
-                    <p className="font-light">
-                      <strong className="font-semibold">Capital:</strong>{" "}
-                      {country.capital}
-                    </p>
-                  </li>
+                  {!!country.capital.length && (
+                    <li className="text-sm">
+                      <p className="font-light">
+                        <strong className="font-semibold">Capital:</strong>{" "}
+                        {country.capital}
+                      </p>
+                    </li>
+                  )}
                 </ul>
               </div>
             </Link>

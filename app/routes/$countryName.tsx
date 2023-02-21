@@ -19,7 +19,7 @@ export default function Index() {
   console.log("Country", country);
 
   const nativeName =
-    country.name.nativeName[Object.keys(country.name.nativeName)[0]].common;
+    country.name.nativeName[Object.keys(country.name.nativeName)[0]]?.common;
 
   const currencies = Object.values(country.currencies)
     .map(({ name }) => name)
@@ -59,10 +59,12 @@ export default function Index() {
           </h1>
           <div className="flex flex-col md:flex-row text-sm md:text-base gap-8">
             <div className="flex-1">
-              <p className="mb-2 font-light">
-                <strong className="font-semibold">Native Name:</strong>{" "}
-                {nativeName}
-              </p>
+              {!!nativeName && (
+                <p className="mb-2 font-light">
+                  <strong className="font-semibold">Native Name:</strong>{" "}
+                  {nativeName}
+                </p>
+              )}
               <p className="mb-2 font-light">
                 <strong className="font-semibold">Population:</strong>{" "}
                 {country.population.toLocaleString()}
@@ -71,28 +73,36 @@ export default function Index() {
                 <strong className="font-semibold">Region:</strong>{" "}
                 {country.region}
               </p>
-              <p className="mb-2 font-light">
-                <strong className="font-semibold">Sub Region:</strong>{" "}
-                {country.subregion}
-              </p>
-              <p className="mb-2 font-light">
-                <strong className="font-semibold">Capital:</strong>{" "}
-                {country.capital}
-              </p>
+              {!!country.subregion && (
+                <p className="mb-2 font-light">
+                  <strong className="font-semibold">Sub Region:</strong>{" "}
+                  {country.subregion}
+                </p>
+              )}
+              {!!country.capital.length && (
+                <p className="mb-2 font-light">
+                  <strong className="font-semibold">Capital:</strong>{" "}
+                  {country.capital[0]}
+                </p>
+              )}
             </div>
             <div className="flex-1">
               <p className="mb-2 font-light">
                 <strong className="font-semibold">Top Level Domain:</strong>{" "}
                 {country.tld[0]}
               </p>
-              <p className="mb-2 font-light">
-                <strong className="font-semibold">Currencies:</strong>{" "}
-                {currencies}
-              </p>
-              <p className="mb-2 font-light">
-                <strong className="font-semibold">Languages:</strong>{" "}
-                {languages}
-              </p>
+              {!!currencies && (
+                <p className="mb-2 font-light">
+                  <strong className="font-semibold">Currencies:</strong>{" "}
+                  {currencies}
+                </p>
+              )}
+              {!!languages && (
+                <p className="mb-2 font-light">
+                  <strong className="font-semibold">Languages:</strong>{" "}
+                  {languages}
+                </p>
+              )}
             </div>
           </div>
           {!!country.borders.length && (
