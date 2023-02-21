@@ -1,12 +1,19 @@
-import { ofetch } from 'ofetch';
+import { ofetch } from "ofetch";
 
 export interface Country {
   flags: Flags;
   name: Name;
+  tld: string[];
+  currencies: Record<string, Currency>;
   capital: string[];
   altSpellings: string[];
   region: string;
+  subregion: string;
+  languages: Record<string, string>;
   population: number;
+  borders: string[];
+  cca3: string;
+  cioc: string;
 }
 
 export interface Flags {
@@ -18,49 +25,96 @@ export interface Flags {
 export interface Name {
   common: string;
   official: string;
-  nativeName: NativeName;
+  nativeName: Record<string, NativeName>;
 }
 
 export interface NativeName {
-  isl: Isl;
-}
-
-export interface Isl {
   official: string;
   common: string;
+}
+export interface Currency {
+  name: string;
+  symbol: string;
 }
 
 // Select fields to receive from API
 // https://restcountries.com/#filter-response
-const filters = 'fields=name,population,region,capital,flags';
+const filters =
+  "fields=name,population,region,subregion,capital,flags,languages,tld,currencies,borders,cca3,cioc";
 
 declare global {
-  var countryCache: Record<string, Country[]>;
+  var countriesCache: Record<string, Country[]>;
+  var countryCache: Country;
+  var regions: string[];
 }
 
-if (!global.countryCache) {
-  global.countryCache = {};
+if (!global.countriesCache) {
+  global.countriesCache = {};
 }
 
-export async function getCountries({ region }: { region: string | null }) {
-  const key = region || 'all';
+export async function getCountries(opts?: { region: string | null }) {
+  const key = opts?.region || "all";
 
-  console.log('object.keys', Object.keys(countryCache));
-
-  if (!countryCache[key]) {
-    if (key == 'all') {
-      console.log('fetching');
-
-      countryCache[key] = await ofetch(
+  if (!global.countriesCache[key]) {
+    if (key == "all") {
+      global.countriesCache[key] = await ofetch(
         `https://restcountries.com/v3.1/all?${filters}`
       );
     } else {
-      console.log('fetching');
-      countryCache[key] = await ofetch(
-        `https://restcountries.com/v3.1/region/${region}?${filters}`
+      global.countriesCache[key] = await ofetch(
+        `https://restcountries.com/v3.1/region/${key}?${filters}`
       );
     }
   }
 
-  return countryCache[key];
+  return global.countriesCache[key];
+}
+
+export async function getCountry({ countryName }: { countryName: string }) {
+  if (!global.countriesCache.all) {
+    await getCountries();
+  }
+
+  if (global.countryCache?.name?.common !== countryName) {
+    global.countryCache = {
+      ...global.countriesCache.all.find(
+        (country) => country.name.common === countryName
+      ),
+    } as Country;
+
+    if (!global.countryCache) {
+      return null;
+    }
+
+    global.countryCache.borders = (global.countryCache.borders as string[]).map(
+      (border) =>
+        (
+          global.countriesCache.all.find(
+            (country) => country.cca3 === border
+          ) as Country
+        ).name.common
+    );
+  }
+
+  return global.countryCache;
+}
+
+export async function getRegions() {
+  if (!global.countriesCache.all) {
+    await getCountries();
+  }
+
+  if (!global.regions) {
+    global.regions = [
+      ...new Set(global.countriesCache.all.map(({ region }) => region)),
+    ].sort((a, b) => a.localeCompare(b));
+  }
+
+  if (!global.countriesCache.all) {
+    global.countriesCache.all = await ofetch(
+      `https://restcountries.com/v3.1/all?${filters}`
+    );
+  }
+
+  return global.regions;
 }
