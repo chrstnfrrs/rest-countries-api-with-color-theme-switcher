@@ -6,6 +6,7 @@
     "dev": "run-p \"dev:*\"",
     "dev:css": "yarn generate:css -- --watch",
     "dev:remix": "remix dev",
+    "format": "prettier --write --ignore-unknown .",
     "start": "cross-env NODE_ENV=production netlify dev",
     "typecheck": "tsc",
     "generate:css": "npx tailwindcss -o ./app/tailwind.css"
@@ -29,6 +30,8 @@
     "@types/react-dom": "^18.0.8",
     "eslint": "^8.27.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.4",
+    "prettier-plugin-tailwindcss": "^0.2.3",
     "tailwindcss": "^3.2.7",
     "typescript": "^4.8.4"
   },

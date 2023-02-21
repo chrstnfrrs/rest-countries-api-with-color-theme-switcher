@@ -1,4 +1,4 @@
-import { ofetch } from "ofetch";
+import { ofetch } from 'ofetch';
 
 export interface Country {
   flags: Flags;
@@ -40,7 +40,7 @@ export interface Currency {
 // Select fields to receive from API
 // https://restcountries.com/#filter-response
 const filters =
-  "fields=name,population,region,subregion,capital,flags,languages,tld,currencies,borders,cca3,cioc";
+  'fields=name,population,region,subregion,capital,flags,languages,tld,currencies,borders,cca3,cioc';
 
 declare global {
   var countriesCache: Record<string, Country[]>;
@@ -53,16 +53,16 @@ if (!global.countriesCache) {
 }
 
 export async function getCountries(opts?: { region: string | null }) {
-  const key = opts?.region || "all";
+  const key = opts?.region || 'all';
 
   if (!global.countriesCache[key]) {
-    if (key == "all") {
+    if (key == 'all') {
       global.countriesCache[key] = await ofetch(
-        `https://restcountries.com/v3.1/all?${filters}`
+        `https://restcountries.com/v3.1/all?${filters}`,
       );
     } else {
       global.countriesCache[key] = await ofetch(
-        `https://restcountries.com/v3.1/region/${key}?${filters}`
+        `https://restcountries.com/v3.1/region/${key}?${filters}`,
       );
     }
   }
@@ -78,7 +78,7 @@ export async function getCountry({ countryName }: { countryName: string }) {
   if (global.countryCache?.name?.common !== countryName) {
     global.countryCache = {
       ...global.countriesCache.all.find(
-        (country) => country.name.common === countryName
+        (country) => country.name.common === countryName,
       ),
     } as Country;
 
@@ -90,9 +90,9 @@ export async function getCountry({ countryName }: { countryName: string }) {
       (border) =>
         (
           global.countriesCache.all.find(
-            (country) => country.cca3 === border
+            (country) => country.cca3 === border,
           ) as Country
-        ).name.common
+        ).name.common,
     );
   }
 
@@ -112,7 +112,7 @@ export async function getRegions() {
 
   if (!global.countriesCache.all) {
     global.countriesCache.all = await ofetch(
-      `https://restcountries.com/v3.1/all?${filters}`
+      `https://restcountries.com/v3.1/all?${filters}`,
     );
   }
 
