@@ -160,24 +160,18 @@ export default function Index() {
                   <strong>{country.name.common}</strong>
                 </p>
                 <ul className="flex flex-col gap-2">
-                  <li>
-                    <p className="text-sm font-light">
-                      <strong className="font-semibold">Population:</strong>{" "}
-                      {country.population.toLocaleString()}
-                    </p>
+                  <li className="text-sm font-light">
+                    <strong className="font-semibold">Population:</strong>{" "}
+                    {country.population.toLocaleString()}
                   </li>
-                  <li className="text-sm">
-                    <p className="font-light">
-                      <strong className="font-semibold">Region:</strong>{" "}
-                      {country.region}
-                    </p>
+                  <li className="text-sm font-light">
+                    <strong className="font-semibold">Region:</strong>{" "}
+                    {country.region}
                   </li>
                   {!!country.capital.length && (
-                    <li className="text-sm">
-                      <p className="font-light">
-                        <strong className="font-semibold">Capital:</strong>{" "}
-                        {country.capital}
-                      </p>
+                    <li className="text-sm font-light">
+                      <strong className="font-semibold">Capital:</strong>{" "}
+                      {country.capital}
                     </li>
                   )}
                 </ul>
