@@ -32,8 +32,8 @@ export const links: LinksFunction = () => [
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "New Remix App",
-  viewport: "width=device-width,initial-scale=1",
+  title: "Rest countries api with color theme switcher",
+  viewport: "width=device-width,initial-scale=1,maximum-scale=1",
   description: "Frontend Mentor Project",
 });
 
